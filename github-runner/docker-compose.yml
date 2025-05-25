@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  github-runner:
+    build: .
+    container_name: github-actions-runner
+    environment:
+      # Required: GitHub Personal Access Token with repo permissions
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      
+      # Option 1: For repository-level runner
+      - GITHUB_REPOSITORY=${GITHUB_REPOSITORY:-}
+      
+      # Option 2: For organization-level runner (use instead of GITHUB_REPOSITORY)
+      # - GITHUB_OWNER=${GITHUB_OWNER:-}
+      
+      # Optional: Custom runner name (defaults to docker-runner-<hostname>)
+      - RUNNER_NAME=${RUNNER_NAME:-docker-runner}
+      
+      # Optional: Custom labels (defaults to docker,ubuntu,self-hosted)
+      - RUNNER_LABELS=${RUNNER_LABELS:-docker,ubuntu,self-hosted}
+    
+    # Mount Docker socket for Docker-in-Docker (if needed)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Optional: Resource limits
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '2.0'
+    #       memory: 4G
+    #     reservations:
+    #       cpus: '1.0'
+    #       memory: 2G
